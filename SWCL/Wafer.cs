@@ -5,22 +5,29 @@ using System.Text;
 
 namespace SWCL
 {
-    public sealed class Wafer : IWaferComponent
+    public class Wafer : IWaferComponent
     {
         #region Field
 
         private static EmWaferComponentType areaType = EmWaferComponentType.Wafer;
 
-        private RectangleF area = RectangleF.Empty;
+        private readonly WaferHeader header;
+        private readonly RectangleF area;
+        private Die[,] dieList;
 
         #endregion
 
         #region Property
 
-
         public EmWaferComponentType AreaType => areaType;
 
         public RectangleF Area => area;
+
+        public WaferHeader Header => header;
+
+        public float WaferSize => header.WaferDiameter;
+
+        public Die[,] DieList => dieList;
 
         #endregion
 
@@ -28,15 +35,12 @@ namespace SWCL
 
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="diameter">unit : um</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public Wafer(float diameter = 300000)
+        public Wafer(WaferHeader header)
         {
-            if(!(diameter > 0)) { throw new ArgumentOutOfRangeException("diameter > 0"); }
-            area = new RectangleF(new PointF(0, 0), new SizeF(diameter, diameter));
+            this.header = header;
+            this.area = new RectangleF(header.WaferOrigin, new SizeF(header.WaferDiameter, header.WaferDiameter));
+            RectangleF[,] dieAreas = header.CreateDieAreas();
+            dieList = dieAreas.CreateDie(this);
         }
     }
 }
